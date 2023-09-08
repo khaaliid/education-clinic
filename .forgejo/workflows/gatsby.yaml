@@ -1,0 +1,60 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  CI_REGISTRY: git.beyond.cc
+
+jobs:
+  deploy-site:
+    runs-on: node-18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: https://github.com/actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - name: Yarn install
+        run: yarn install
+
+      - name: Gatsby build
+        run: |
+          yarn global add gatsby-cli
+          cd sites/educationclinic
+          gatsby build          
+
+      - name: Setup buildx
+        uses: https://github.com/docker/setup-buildx-action@v2
+
+      - name: Auth registry
+        run: |
+          token="${{ secrets.REGISTRY_TOKEN }}"
+          user="${{ secrets.REGISTRY_USER }}"
+          BASE64_AUTH=`echo -n "$user:$token" | base64`
+          mkdir -p ~/.docker
+          echo "{\"auths\": {\"$CI_REGISTRY\": {\"auth\": \"$BASE64_AUTH\"}}}" > ~/.docker/config.json          
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: https://github.com/docker/metadata-action@v4
+        with:
+          images: ${{ env.CI_REGISTRY }}/educationclinic/website
+
+      - name: Build and push image
+        uses: https://github.com/docker/build-push-action@v4
+        env:
+          ACTIONS_RUNTIME_TOKEN: ''
+        with:
+          context: sites/educationclinic
+          push: ${{ github.event_name != 'pull_request' }}
+          outputs: type=image,oci-mediatypes=true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
