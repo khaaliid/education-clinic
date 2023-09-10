@@ -19,4 +19,5 @@ import "swiper/css/bundle"
 // Global style
 import "./src/styles/css/style.css" 
 import "./src/styles/css/responsive.css" 
+import "./src/styles/css/rtl.css" 
  

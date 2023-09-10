@@ -9,10 +9,10 @@
  */
 module.exports = {
   siteMetadata: {
-    title: `Education clinic`,
-    description: `Education clinic site`,
-    author: `Education clinic - IT team`,
-    siteUrl: `https://eduhub21.com`,
+    title: `Rewy - Gatsby React IT Startup & Technology Template`,
+    description: `Gatsby React IT Startup & Technology Template`,
+    author: `@envytheme`,
+    siteUrl: `https://rewy-gatsby.envytheme.com`,
   },
   plugins: [
     `gatsby-plugin-image`,
